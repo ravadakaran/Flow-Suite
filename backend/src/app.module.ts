@@ -22,8 +22,32 @@ import { APP_FILTER } from '@nestjs/core';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
-    BullModule.forRoot({
-      redis: { host: '127.0.0.1', port: 6379 },
+    BullModule.forRootAsync({
+      useFactory: () => {
+        if (process.env.REDIS_URL) {
+          try {
+            const url = new URL(process.env.REDIS_URL);
+            return {
+              redis: {
+                host: url.hostname,
+                port: parseInt(url.port || '6379', 10),
+                password: url.password ? decodeURIComponent(url.password) : undefined,
+                username: url.username ? decodeURIComponent(url.username) : undefined,
+                tls: url.protocol === 'rediss:' ? {} : undefined,
+              },
+            };
+          } catch {
+            return { redis: { host: '127.0.0.1', port: 6379 } };
+          }
+        }
+        return {
+          redis: {
+            host: process.env.REDIS_HOST || '127.0.0.1',
+            port: parseInt(process.env.REDIS_PORT || '6379', 10),
+            password: process.env.REDIS_PASSWORD || undefined,
+          },
+        };
+      },
     }),
     PrismaModule,
     AuthModule,
