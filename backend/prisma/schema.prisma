@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  pro
+  enterprise
+}
+
+enum Role {
+  owner
+  admin
+  member
+  guest
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  done
+  cancelled
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum ProjectStatus {
+  active
+  archived
+}
+
+model Tenant {
+  id                     String   @id @default(uuid())
+  slug                   String   @unique
+  name                   String
+  plan                   Plan     @default(free)
+  stripeCustomerId       String?  @map("stripe_customer_id")
+  stripeSubscriptionId   String?  @map("stripe_subscription_id")
+  subscriptionStatus     String   @default("active") @map("subscription_status")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  members   TenantMember[]
+  invites   Invite[]
+  projects  Project[]
+  tasks     Task[]
+  auditLogs AuditLog[]
+  customers Customer[]
+  usage     TenantUsage?
+
+  @@map("tenants")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  fullName      String?  @map("full_name")
+  avatarUrl     String?  @map("avatar_url")
+  emailVerified Boolean  @default(false) @map("email_verified")
+  refreshToken  String?  @map("refresh_token")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  memberships   TenantMember[]
+  sentInvites   Invite[]       @relation("InvitedBy")
+  assignedTasks Task[]         @relation("AssignedTasks")
+  createdTasks  Task[]         @relation("CreatedTasks")
+  createdProjects Project[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model TenantMember {
+  id         String    @id @default(uuid())
+  tenantId   String    @map("tenant_id")
+  userId     String    @map("user_id")
+  role       Role      @default(member)
+  invitedBy  String?   @map("invited_by")
+  acceptedAt DateTime? @map("accepted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("tenant_members")
+}
+
+model Invite {
+  id         String    @id @default(uuid())
+  tenantId   String    @map("tenant_id")
+  email      String
+  role       Role      @default(member)
+  token      String    @unique
+  invitedBy  String    @map("invited_by")
+  expiresAt  DateTime  @map("expires_at")
+  acceptedAt DateTime? @map("accepted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inviter   User   @relation("InvitedBy", fields: [invitedBy], references: [id])
+
+  @@index([token])
+  @@index([tenantId])
+  @@map("invites")
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  tenantId    String        @map("tenant_id")
+  customerId  String?       @map("customer_id")
+  name        String
+  description String?
+  status      ProjectStatus @default(active)
+  createdBy   String?       @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer? @relation("CustomerProjects", fields: [customerId], references: [id], onDelete: SetNull)
+  creator  User?     @relation(fields: [createdBy], references: [id])
+  tasks    Task[]
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@map("projects")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  tenantId    String       @map("tenant_id")
+  projectId   String       @map("project_id")
+  title       String
+  description String?
+  status      TaskStatus   @default(todo)
+  priority    TaskPriority @default(medium)
+  assigneeId  String?      @map("assignee_id")
+  dueDate     DateTime?    @map("due_date")
+  createdBy   String?      @map("created_by")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User?    @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  creator  User?    @relation("CreatedTasks", fields: [createdBy], references: [id])
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([assigneeId])
+  @@map("tasks")
+}
+
+model PlanEntitlement {
+  id           String  @id @default(uuid())
+  plan         Plan
+  featureKey   String  @map("feature_key")
+  limitValue   Int?    @map("limit_value")
+  isEnabled    Boolean @default(true) @map("is_enabled")
+
+  @@unique([plan, featureKey])
+  @@map("plan_entitlements")
+}
+
+model TenantUsage {
+  tenantId     String   @id @map("tenant_id")
+  projectCount Int      @default(0) @map("project_count")
+  memberCount  Int      @default(0) @map("member_count")
+  storageBytes BigInt   @default(0) @map("storage_bytes")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("tenant_usage")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  actorId    String?  @map("actor_id")
+  actorEmail String?  @map("actor_email")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  metadata   Json?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actor  User?  @relation(fields: [actorId], references: [id])
+
+  @@index([tenantId])
+  @@index([actorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  name      String
+  email     String?
+  company   String?
+  phone     String?
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  projects Project[] @relation("CustomerProjects")
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@map("customers")
+}

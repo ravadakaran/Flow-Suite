@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowSuite - Beautiful Workspace Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Premium color palette */
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-dark: #4f46e5;
+      --accent: #a855f7;
+      --accent-light: #d8b4fe;
+      --surface-dark: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--surface-dark) 0%, #1a1f35 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body {
+      background-attachment: fixed;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 1.25rem 2rem;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo span {
+      font-size: 1.75rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-light);
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .hero-content {
+      max-width: 900px;
+      z-index: 10;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: var(--primary-light);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #f8fafc 0%, var(--primary-light) 50%, var(--accent-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(99, 102, 241, 0.6);
+    }
+
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 1rem 2.5rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    /* Hero visuals */
+    .hero-visual {
+      position: relative;
+      height: 400px;
+      margin-top: 3rem;
+    }
+
+    .floating-card {
+      position: absolute;
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .card-1 {
+      width: 280px;
+      left: 10%;
+      top: 20px;
+      animation-delay: 0s;
+    }
+
+    .card-2 {
+      width: 260px;
+      right: 15%;
+      top: 100px;
+      animation-delay: 2s;
+    }
+
+    .card-3 {
+      width: 240px;
+      left: 30%;
+      bottom: 30px;
+      animation-delay: 4s;
+    }
+
+    .card-stat {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-stat:last-child {
+      margin-bottom: 0;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+    }
+
+    .stat-info h4 {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-info p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 6rem 2rem;
+      background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.05) 100%);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .section-header p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+
+    .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(30, 41, 59, 0.6);
+    }
+
+    .feature-card:hover::before {
+      opacity: 0.05;
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 6rem 2rem;
+      text-align: center;
+    }
+
+    .cta-content {
+      max-width: 700px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 24px;
+      padding: 3rem 2rem;
+    }
+
+    .cta-content h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .cta-content p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-link {
+        display: none;
+      }
+
+      .hero {
+        padding: 5rem 1rem 2rem;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+      }
+
+      .primary-btn, .secondary-btn {
+        width: 100%;
+      }
+
+      .floating-card {
+        display: none;
+      }
+
+      .section-header h2 {
+        font-size: 1.8rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <span>⚡</span>
+        FlowSuite
+      </div>
+      <nav>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#" class="nav-link">Pricing</a>
+        <a href="#" class="nav-link">Docs</a>
+        <button class="cta-button">Login</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="badge">✨ Introducing FlowSuite Pro</div>
+
+      <h1>Beautiful Workspace for Your Team</h1>
+
+      <p>Streamline projects, manage tasks, and collaborate seamlessly. Built with modern design and powerful features to keep your team moving forward.</p>
+
+      <div class="hero-buttons">
+        <button class="primary-btn">Get Started Free</button>
+        <button class="secondary-btn">View Demo</button>
+      </div>
+
+      <div class="hero-visual">
+        <div class="floating-card card-1">
+          <div class="card-stat">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+              <h4>Projects</h4>
+              <p>12 active</p>
+            </div>
+          </div>
+          <div class="card-stat">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <h4>Completed</h4>
+              <p>94 tasks</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-card card-2">
+          <div class="card-stat">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <h4>Team Members</h4>
+              <p>8 active</p>
+            </div>
+          </div>
+          <div class="card-stat">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-info">
+              <h4>Time Saved</h4>
+              <p>40 hours</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-card card-3">
+          <div class="card-stat">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-info">
+              <h4>Sprint Progress</h4>
+              <p>85% complete</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <h2>Powerful Features</h2>
+      <p>Everything you need to manage projects, collaborate with your team, and ship faster.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Project Management</h3>
+        <p>Organize your work into projects, set milestones, and track progress in real-time with our intuitive interface.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Task Workflows</h3>
+        <p>Create, assign, and manage tasks with flexible status tracking. Move work from todo to done effortlessly.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Team Collaboration</h3>
+        <p>Invite team members, manage roles, and keep everyone aligned with transparent activity tracking.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Get insights into team productivity, project metrics, and completion rates with beautiful visualizations.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <h3>Customer Management</h3>
+        <p>Keep track of customer records, link them to projects, and manage client relationships efficiently.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Audit Logs</h3>
+        <p>Complete activity history with filtering and search. Stay compliant and track every action in your workspace.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Ready to Transform Your Workflow?</h2>
+      <p>Join thousands of teams using FlowSuite to ship faster and collaborate better.</p>
+      <button class="primary-btn">Start Free Trial</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 FlowSuite. Crafted with ❤️ for amazing teams. All rights reserved.</p>
+  </footer>
+</body>
+</html>
